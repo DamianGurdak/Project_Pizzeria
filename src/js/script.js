@@ -62,9 +62,8 @@
       thisProduct.data = data;
 
       thisProduct.renderInMenu();
-      thisProduct.initAcordion();
-
       thisProduct.getElements();
+      thisProduct.initAcordion();
       thisProduct.initOrderForm();
       thisProduct.processOrder();
 
@@ -113,13 +112,13 @@
       const thisProduct = this;
 
       /* find the clickable trigger (the element that should react to clicking) */
-      const clickableTrigger = thisProduct.element.querySelector(
-        select.menuProduct.clickable
-      );
+      // const hid = thisProduct.element.querySelector(
+      //   select.menuProduct.clickable
+      // );
       // console.log('clickableTrigger:', clickableTrigger);
 
       /* START: add event listener to clickable trigger on event click */
-      clickableTrigger.addEventListener('click', function (event) {
+      thisProduct.accordionTrigger.addEventListener('click', function (event) {
         /* prevent default action for event */
         event.preventDefault();
         // console.log(clickableTrigger);
@@ -171,7 +170,7 @@
 
       // convert form objcet structure e.g. { sauce: ['tomato'], toppings: ['olives', 'redPeppers']}
       const formData = utils.serializeFormToObject(thisProduct.form);
-      // console.log('fromData:', formData);
+      console.log('fromData:', formData);
 
       // set price to default price
       let price = thisProduct.data.price;
@@ -188,25 +187,26 @@
           // determine option value, e.g. optionId = 'olives', option = { label: 'Olives', price: 2, default: true }
           const option = param.options[optionId];
           // console.log(optionId, option); //opcje wyboru
-          // console.log('option:', option);
+          console.log('option:', option);
 
           // update calculated price in the HTML
           thisProduct.priceElem.innerHTML = price;
 
-          // check if there is param with a name of paramId in formData and if it includes optionId
-  if(formData[paramId] && formData[paramId].includes(optionId)) {
-    // check if the option is not default
-    if(param[option] && param[option].includes(default == true)) {
-      // add option price to price variable
-      price = price +
-    }
-  } else {
-    // check if the option is default
-    if(param[option] && param[option].includes(default == false)) {
-      // reduce price variable
-      price = price - 
-    }
-  }
+          //check if there is param with a name of paramId in formData and if it includes optionId
+          if (formData[paramId] && formData[paramId].includes(optionId)) {
+            // check if the option is not default
+            if (param[option] && param[option].default === false) {
+              // add option price to price variable
+              price += param[option].price;
+            }
+          } else {
+            // check if the option is default
+            if (param[option] && param[option].default === true) {
+              // reduce price variable
+              price -= param[option].price;
+            }
+            
+          }
         }
       }
     }
