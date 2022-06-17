@@ -106,6 +106,10 @@
       thisProduct.priceElem = thisProduct.element.querySelector(
         select.menuProduct.priceElem
       );
+      thisProduct.imageWrapper = thisProduct.element.querySelector(
+        select.menuProduct.imageWrapper
+      ); ///////////////////////////??? to tego ma szukać?
+      // console.log('thidProduct.imageWrapper', thisProduct.imageWrapper);
     }
 
     initAcordion() {
@@ -205,8 +209,9 @@
               // reduce price variable
               price -= param[option].price;
             }
-            
           }
+
+          // const optionImage = this.Product.imageWrapper.querySelector(pizza.option);
         }
       }
     }
