@@ -65,6 +65,7 @@
       thisProduct.getElements();
       thisProduct.initAcordion();
       thisProduct.initOrderForm();
+      // thisProduct.initAmountWidget();
       thisProduct.processOrder();
 
       // console.log('new Product', thisProduct);
@@ -110,6 +111,10 @@
         select.menuProduct.imageWrapper
       ); ///////////////////////////??? to tego ma szukać?
       // console.log('thidProduct.imageWrapper', thisProduct.imageWrapper);
+
+      thisProduct.amountWidgetElem = thisProduct.element.querySelector(
+        select.menuProduct.amountWidget
+      );
     }
 
     initAcordion() {
@@ -193,27 +198,44 @@
           // console.log(optionId, option); //opcje wyboru
           console.log('option:', option);
 
-          // update calculated price in the HTML
-          thisProduct.priceElem.innerHTML = price;
+          
 
           //check if there is param with a name of paramId in formData and if it includes optionId
           if (formData[paramId] && formData[paramId].includes(optionId)) {
             // check if the option is not default
-            if (param[option] && param[option].default === false) {
+            if (option && option.default === false) {
               // add option price to price variable
-              price += param[option].price;
+              price += option.price;
+              
             }
           } else {
             // check if the option is default
-            if (param[option] && param[option].default === true) {
+            if (option && option.default === true) {
               // reduce price variable
-              price -= param[option].price;
+              price -= option.price;
             }
           }
-
+          console.log('price:',price);
           // const optionImage = this.Product.imageWrapper.querySelector(pizza.option);
+          // update calculated price in the HTML
+          thisProduct.priceElem.innerHTML = price;
         }
       }
+    }
+
+    initAmountWidget() {
+      const thisProduct = this;
+
+      thisProduct.amountWidget = new AmountWidget(thisProduct.amountWidgetElem);
+    }
+  }
+
+  class AmonutWidget {
+    constructor(element) {
+      const thisWidget = this;
+
+      console.log('AmountWidget:', thisWidget);
+      console.log('constructor arguments:', element);
     }
   }
 
