@@ -71,7 +71,7 @@
     amountWidget: {
       defaultValue: 1,
       defaultMin: 1,
-      defaultMax: 9,
+      defaultMax: 10,
     }, // CODE CHANGED
     // CODE ADDED START
     cart: {
@@ -226,14 +226,14 @@
       for (let paramId in thisProduct.data.params) {
         // determine param value, e.g. paramId = 'toppings', param = { label: 'Toppings', type: 'checkboxes'... }
         const param = thisProduct.data.params[paramId];
-        // console.log(paramId, param);// nagłowki wyboru nazawa kategorii
+        console.log(paramId, param); // nagłowki wyboru nazawa kategorii
         // console.log(param);
 
         // [ IN PROGRESS ] for every option in this category
         for (let optionId in param.options) {
           // determine option value, e.g. optionId = 'olives', option = { label: 'Olives', price: 2, default: true }
           const option = param.options[optionId];
-          // console.log(optionId, option); //opcje wyboru
+          console.log(optionId, option); //opcje wyboru
           // console.log('option:', option);
 
           //check if there is param with a name of paramId in formData and if it includes optionId
@@ -254,16 +254,17 @@
           }
           console.log('price:', price);
 
-          // const optionImage = this.Product.imageWrapper.querySelector(.paramId-optionId);
-          // const optionImage = this.Product.imageWrapper.getElementsByClassName(.paramId-optionId);
+          const optionImage = thisProduct.imageWrapper.querySelector(
+            '.' + paramId + '-' + optionId
+          );
 
-          // if (optionImage) {
-          //   if (optionSelected) {
-          //     optionImage.classList.add(classNames.menuProduct.imageVisible);
-          //   } else {
-          //     optionImage.classList.remove(classNames.menuProduct.imageVisible);
-          //   }
-          // }
+          if (optionImage) {
+            if (optionSelected) {
+              optionImage.classList.add(classNames.menuProduct.imageVisible);
+            } else {
+              optionImage.classList.remove(classNames.menuProduct.imageVisible);
+            }
+          }
 
           /* multiply price by amount(ilość) */
 
@@ -297,7 +298,9 @@
       console.log('constructor arguments:', element);
 
       thisWidget.getElements(element);
-      thisWidget.setValue(thisWidget.input.value);
+      thisWidget.setValue(
+        thisWidget.input.value || settings.amountWidget.defaultValue
+      ); // zmiana z liniki wyzej chyba);
       thisWidget.initActions(); //dobre mijece na wtwołanie
     }
 
@@ -331,20 +334,20 @@
       // thisWidget.value zmieni tylko wtedy, jeśli nowa wpisana w input wartość będzie inna niż obecna.
       if (
         thisWidget.value !== newValue &&
-        isNaN(newValue) !== null &&
-        thisWidget.value <= settings.amountWidget.defaultMax &&
-        thisWidget.value >= settings.amountWidget.defaultMin
+        !isNaN(newValue) &&
+        newValue <= settings.amountWidget.defaultMax &&
+        newValue >= settings.amountWidget.defaultMin
       ) {
         // ja dałem taki warunek: "value != thisWidget.value" //
         thisWidget.value = newValue;
-        this.announce();
+        thisWidget.announce();
       }
 
       //właściwość thisWidget.value
-      thisWidget.value = newValue; //zapisuje we właściwości thisWidget.value wartość przekazanego argumentu, po przekonwertowaniu go na liczbę
+      thisWidget.input.value = thisWidget.value; //zapisuje we właściwości thisWidget.value wartość przekazanego argumentu, po przekonwertowaniu go na liczbę
+
       // thisWidget.input.value = thisWidget.value; //przypisanie wartości thisWidget.value do inputu,  aktualizuje wartość samego inputu
-      thisWidget.input.value = settings.amountWidget.defaultValue; // zmiana z liniki wyzej chyba
-      thisWidget.setValue(thisWidget.input.value); //nie widze w konsoli właściwości =1
+      // thisWidget.input.value = settings.amountWidget.defaultValue; // zmiana z liniki wyzej chyba
     }
 
     initActions() {
@@ -357,12 +360,12 @@
 
       thisWidget.linkDecrease.addEventListener('click', function (event) {
         event.preventDefault();
-        thisWidget.setValue(thisWidget.value) - 1;
+        thisWidget.setValue(thisWidget.value - 1);
       });
 
       thisWidget.linkIncrease.addEventListener('click', function (event) {
         event.preventDefault();
-        thisWidget.setValue(thisWidget.value) + 1;
+        thisWidget.setValue(thisWidget.value + 1);
       });
     }
 
@@ -371,7 +374,7 @@
       const thisWidget = this;
 
       const event = new Event('updated');
-      thisWidget.element.dispatchEcent(event);
+      thisWidget.element.dispatchEvent(event);
     }
   }
 
@@ -429,7 +432,7 @@
 
       const cartElem = document.querySelector(select.containerOf.cart);
       thisApp.cart = new Cart(cartElem);
-    }
+    },
   };
 
   app.init();
