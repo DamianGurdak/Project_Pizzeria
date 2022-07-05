@@ -70,7 +70,7 @@
   const settings = {
     amountWidget: {
       defaultValue: 1,
-      defaultMin: 1,
+      defaultMin: 0,
       defaultMax: 10,
     }, // CODE CHANGED
     // CODE ADDED START
@@ -208,6 +208,7 @@
       thisProduct.cartButton.addEventListener('click', function (event) {
         event.preventDefault();
         thisProduct.processOrder();
+        thisProduct.addToCart();
       });
     }
 
@@ -233,15 +234,16 @@
         for (let optionId in param.options) {
           // determine option value, e.g. optionId = 'olives', option = { label: 'Olives', price: 2, default: true }
           const option = param.options[optionId];
-          console.log(optionId, option); //opcje wyboru
+          // console.log(optionId, option); //opcje wyboru
           // console.log('option:', option);
 
           //check if there is param with a name of paramId in formData and if it includes optionId
           const optionSelected =
             formData[paramId] && formData[paramId].includes(optionId);
+
           if (optionSelected) {
             // check if the option is not default
-            if (option && option.default === false) {
+            if (option && option.default != true) {
               // add option price to price variable
               price += option.price;
             }
@@ -265,13 +267,16 @@
               optionImage.classList.remove(classNames.menuProduct.imageVisible);
             }
           }
-
-          /* multiply price by amount(ilość) */
-
-          // update calculated price in the HTML
-          thisProduct.priceElem.innerHTML = price; // to powiino byc w petli czy poza?
         }
       }
+
+      // update calculated price in the HTML
+      thisProduct.priceSingle = price;
+
+      /* multiply price by amount(ilość) */
+
+      price *= thisProduct.amountWidget.value;
+      thisProduct.priceElem.innerHTML = price; // to powiino byc w petli czy poza?
     }
 
     initAmountWidget() {
@@ -286,6 +291,27 @@
         thisProduct.processOrder();
       });
     }
+
+    addToCart() {
+      const thisProduct = this;
+      app.cart.add(thisProduct.prepareCartProduct);
+    }
+
+    prepareCartProduct() {
+      const thisProduct = this;
+
+      const productSummary = {
+        params: {},
+      };
+      productSummary.id = thisProduct.id;
+      productSummary.name = thisProduct.name;
+      productSummary.amount = thisProduct.amountWidget.value;
+      productSummary.priceSingle = thisProduct.priceSingle; //cena jednostkowa
+      productSummary.price =
+        thisProduct.priceSingle * thisProduct.amountWidget.value; //
+
+      return productSummary;
+    }
   }
 
   class AmountWidget {
@@ -298,9 +324,10 @@
       console.log('constructor arguments:', element);
 
       thisWidget.getElements(element);
-      thisWidget.setValue(
-        thisWidget.input.value || settings.amountWidget.defaultValue
-      ); // zmiana z liniki wyzej chyba);
+      // thisWidget.setValue(
+      //   thisWidget.input.value || settings.amountWidget.defaultValue
+      // ); // zmiana z liniki wyzej chyba);
+      thisWidget.setValue(settings.amountWidget.defaultValue);
       thisWidget.initActions(); //dobre mijece na wtwołanie
     }
 
@@ -385,6 +412,7 @@
       thisCart.products = [];
 
       thisCart.getElements(element);
+      thisCart.initActions();
 
       console.log('new cart', thisCart);
     }
@@ -394,7 +422,26 @@
 
       thisCart.dom = {};
 
-      thisCart.dom.imageWrapper = element;
+      //thisCart.dom.imageWrapper = element; // tak było z domem
+      thisCart.dom.wrapper = element;
+
+      thisCart.dom.toggleTrigger = thisCart.dom.wrapper.querySelector(
+        select.cart.toggleTrigger
+      );
+    }
+
+    initActions() {
+      const thisCart = this;
+
+      thisCart.dom.toggleTrigger.addEventListener('click', function () {
+        thisCart.dom.wrapper.classList.toggle(classNames.cart.wrapperActive);
+      });
+    }
+
+    add(menuProduct) {
+      // const thisCart = this;
+
+      console.log('adding product', menuProduct);
     }
   }
 
@@ -436,4 +483,5 @@
   };
 
   app.init();
+  app.initCart();
 }
