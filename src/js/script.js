@@ -308,9 +308,44 @@
       productSummary.amount = thisProduct.amountWidget.value;
       productSummary.priceSingle = thisProduct.priceSingle; //cena jednostkowa
       productSummary.price =
-        thisProduct.priceSingle * thisProduct.amountWidget.value; //
+        thisProduct.priceSingle * thisProduct.amountWidget.value;
+      productSummary.params = thisProduct.prepareCartProductParams; // moze byc zamiast thisProduct.prepareCartProductParams samo params ??
 
       return productSummary;
+    }
+
+    prepareCartProductParams() {
+      const thisProduct = this;
+
+      // convert form objcet structure e.g. { sauce: ['tomato'], toppings: ['olives', 'redPeppers']}
+      const formData = utils.serializeFormToObject(thisProduct.form);
+      const params = {};
+
+      // for every category (param)...
+      for (let paramId in thisProduct.data.params) {
+        // determine param value, e.g. paramId = 'toppings', param = { label: 'Toppings', type: 'checkboxes'... }
+        const param = thisProduct.data.params[paramId];
+
+        // create category param in params const eg. params = { ingredients: { name: 'Ingredients', options: {}}}
+        params[paramId] = {
+          label: param.label,
+          options: {},
+        };
+
+        // for every option in this category
+        for (let optionId in param.options) {
+          const option = param.options[optionId];
+          const optionSelected =
+            formData[paramId] && formData[paramId].includes(optionId);
+
+          if (optionSelected) {
+            params[paramId].options = option[optionId].label;
+            //params[paramId].options[optionId] = option.label; ja zrobilem tak
+          }
+        }
+      }
+
+      return params;
     }
   }
 
@@ -323,12 +358,13 @@
       console.log('AmountWidget:', thisWidget);
       console.log('constructor arguments:', element);
 
-      thisWidget.getElements(element);
+      thisWidget.getElements(element); //przekazanie zawartości tego argumentu konstruktora dalej... jako argument kolejnej metody getElements
+
       // thisWidget.setValue(
       //   thisWidget.input.value || settings.amountWidget.defaultValue
       // ); // zmiana z liniki wyzej chyba);
       thisWidget.setValue(settings.amountWidget.defaultValue);
-      thisWidget.initActions(); //dobre mijece na wtwołanie
+      thisWidget.initActions(); //dobre mijece na wywołanie
     }
 
     getElements(element) {
@@ -352,7 +388,7 @@
       //metoda
       const thisWidget = this;
 
-      const newValue = parseInt(value); // parseInt --> konwerowanie liczby np ('3' -> 3)
+      const newValue = parseInt(value); // parseInt --> konwerowanie liczby np ('3' -> 3 czyli stringa na number)
 
       /* TO DO: Add validation */
 
@@ -381,7 +417,7 @@
       const thisWidget = this;
 
       thisWidget.input.addEventListener('change', function (event) {
-        event.preventDefault();
+        event.preventDefault(); //to raczej nie potrzebne
         thisWidget.setValue(thisWidget.input.value);
       });
 
@@ -397,7 +433,6 @@
     }
 
     announce() {
-      // musze to wywołac
       const thisWidget = this;
 
       const event = new Event('updated');
@@ -406,12 +441,13 @@
   }
 
   class Cart {
+    //obsługuj kosz i jego wszystkie funkjonalności
     constructor(element) {
       const thisCart = this; //stosujemy stałą, w której zapisujemy obiekt this
 
-      thisCart.products = [];
+      thisCart.products = []; //przechowijemy tu produkty dodane do koszyka
 
-      thisCart.getElements(element);
+      thisCart.getElements(element); // ??spytac jak działa co robi
       thisCart.initActions();
 
       console.log('new cart', thisCart);
@@ -422,11 +458,13 @@
 
       thisCart.dom = {};
 
-      //thisCart.dom.imageWrapper = element; // tak było z domem
       thisCart.dom.wrapper = element;
 
       thisCart.dom.toggleTrigger = thisCart.dom.wrapper.querySelector(
         select.cart.toggleTrigger
+      );
+      thisCart.dom.productList = document.querySelector(
+        select.cart.productList
       );
     }
 
@@ -439,15 +477,22 @@
     }
 
     add(menuProduct) {
-      // const thisCart = this;
+      const thisCart = this;
 
-      console.log('adding product', menuProduct);
+      console.log('adding product', menuProduct); // moze kod jest dobry ale zły console.log
+
+      /* generate HTML based on template */
+      const generateHTML = templates.cartProduct(menuProduct);
+      // console.log(generateHTML);
+
+      /* create element using  utils.createElementDOMFromHTML*/
+      const generateDOM = utils.createDOMFromHTML(generateHTML);
+
+      thisCart.dom.productList.appendChild(generateDOM);
     }
   }
 
   const app = {
-    //obiekt
-
     initMenu: function () {
       const thisApp = this;
       // console.log('thisApp.data', thisApp.data);
@@ -482,6 +527,6 @@
     },
   };
 
-  app.init();
-  app.initCart();
+  app.init(); // w dobrym miejscu wywołane?
+  app.initCart(); // w dobrym miejscu wywołane?
 }
