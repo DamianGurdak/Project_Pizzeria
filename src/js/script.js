@@ -94,6 +94,7 @@
   class Product {
     constructor(id, data) {
       const thisProduct = this;
+      console.log('thisProduct', thisProduct);
 
       thisProduct.id = id;
       thisProduct.data = data;
@@ -218,7 +219,7 @@
 
       // convert form objcet structure e.g. { sauce: ['tomato'], toppings: ['olives', 'redPeppers']}
       const formData = utils.serializeFormToObject(thisProduct.form);
-      console.log('fromData:', formData);
+      // console.log('fromData:', formData);
 
       // set price to default price
       let price = thisProduct.data.price;
@@ -227,7 +228,7 @@
       for (let paramId in thisProduct.data.params) {
         // determine param value, e.g. paramId = 'toppings', param = { label: 'Toppings', type: 'checkboxes'... }
         const param = thisProduct.data.params[paramId];
-        console.log(paramId, param); // nagłowki wyboru nazawa kategorii
+        // console.log(paramId, param); // nagłowki wyboru nazawa kategorii
         // console.log(param);
 
         // [ IN PROGRESS ] for every option in this category
@@ -254,7 +255,7 @@
               price -= option.price;
             }
           }
-          console.log('price:', price);
+          // console.log('price:', price);
 
           const optionImage = thisProduct.imageWrapper.querySelector(
             '.' + paramId + '-' + optionId
@@ -320,6 +321,7 @@
       // convert form objcet structure e.g. { sauce: ['tomato'], toppings: ['olives', 'redPeppers']}
       const formData = utils.serializeFormToObject(thisProduct.form);
       const params = {};
+      console.log('params', params);
 
       // for every category (param)...
       for (let paramId in thisProduct.data.params) {
@@ -344,7 +346,7 @@
           }
         }
       }
-
+      
       return params;
     }
   }
@@ -355,8 +357,8 @@
       //constructor ma referencję do diva z inputem i buttonami
       const thisWidget = this;
 
-      console.log('AmountWidget:', thisWidget);
-      console.log('constructor arguments:', element);
+      // console.log('AmountWidget:', thisWidget);
+      // console.log('constructor arguments:', element);
 
       thisWidget.getElements(element); //przekazanie zawartości tego argumentu konstruktora dalej... jako argument kolejnej metody getElements
 
@@ -444,6 +446,7 @@
     //obsługuj kosz i jego wszystkie funkjonalności
     constructor(element) {
       const thisCart = this; //stosujemy stałą, w której zapisujemy obiekt this
+      console.log('thisCart', thisCart);
 
       thisCart.products = []; //przechowijemy tu produkty dodane do koszyka
 
@@ -489,7 +492,42 @@
       const generateDOM = utils.createDOMFromHTML(generateHTML);
 
       thisCart.dom.productList.appendChild(generateDOM);
+
+      thisCart.products.push(new CartProduct(menuProduct, generateDOM));
+      console.log('thisCart.products', thisCart.products);
     }
+    
+  }
+
+  class CartProduct {
+
+    constructor(menuProduct,element) {
+
+      const thisCartProcuct = this;
+      console.log('thisCartProduct', thisCartProcuct);
+
+      thisCartProcuct.getElements(element);
+
+      thisCartProcuct.id = menuProduct.id;
+      thisCartProcuct.name = menuProduct.name;
+      thisCartProcuct.amount = menuProduct.amount;
+      thisCartProcuct.priceSingle = menuProduct.priceSingle;
+      thisCartProcuct.price = menuProduct.price;
+      thisCartProcuct.params = menuProduct.params;
+    }
+
+    getElements(element) {
+      const thisCartProduct = this;
+
+      thisCartProduct.dom = {};
+      thisCartProduct.dom.wrapper = element;
+      thisCartProduct.dom.amountWidget = element.querySelector(select.cartProduct.amountWidget);
+      thisCartProduct.dom.price = element.querySelector(select.cartProduct.price);
+      thisCartProduct.dom.edit = element.querySelector(select.cartProduct.edit);
+      thisCartProduct.dom.remove = element.querySelector(select.cartProduct.remove);
+
+    }
+
   }
 
   const app = {
