@@ -371,8 +371,10 @@
       // thisWidget.setValue(
       //   thisWidget.input.value || settings.amountWidget.defaultValue
       // ); // zmiana z liniki wyzej chyba);
-      thisWidget.setValue(settings.amountWidget.defaultValue);
+      thisWidget.setValue(thisWidget.input.value || settings.amountWidget.defaultValue);
+      
       thisWidget.initActions(); //dobre mijece na wywołanie
+      console.log(element);
     }
 
     getElements(element) {
@@ -444,7 +446,7 @@
       const thisWidget = this;
 
       // const event = new Event('updated'); //zmienioza na linie nizej
-      const event = new CustomEvent('updated', { bubbles: true });
+      const event = new CustomEvent('update', { bubbles: true });
       thisWidget.element.dispatchEvent(event);
     }
   }
@@ -461,6 +463,7 @@
       thisCart.initActions();
 
       // console.log('new cart', thisCart);
+     
     }
 
     getElements(element) {
@@ -482,7 +485,7 @@
       thisCart.dom.subtotalPrice = element.querySelector(
         select.cart.subtotalPrice
       );
-      thisCart.dom.totalPrice = element.querySelector(select.cart.totalPrice);
+      thisCart.dom.totalPrice = element.querySelectorAll(select.cart.totalPrice);
       thisCart.dom.totalNumber = element.querySelector(select.cart.totalNumber);
 
       thisCart.dom.form = element.querySelector(select.cart.form);
@@ -498,7 +501,7 @@
         thisCart.dom.wrapper.classList.toggle(classNames.cart.wrapperActive);
       });
 
-      thisCart.dom.productList.addEventListener('updated', function () {
+      thisCart.dom.productList.addEventListener('update', function () {
         thisCart.update();
       });
 
@@ -544,25 +547,28 @@
 
       for (let product of thisCart.products) {
         thisCart.totalNumber += product.amount;
-        thisCart.subtotalPrice += product.price * product.amount;
+        thisCart.subtotalPrice += product.price;
+        console.log(product);
       }
 
       if (thisCart.subtotalPrice != 0) {
         thisCart.totalPrice = thisCart.subtotalPrice + deliveryFree;
       }
-      // console.log('------------------------------');
-      // console.log('Cena za posiłek oprócz dostawy:', thisCart.subtotalPrice);
-      // console.log('Cena za całe zamówienie:', thisCart.totalPrice);
-      // console.log('------------------------------');
+      
 
       thisCart.dom.subtotalPrice.innerHTML = thisCart.subtotalPrice;
-      thisCart.dom.totalPrice.innerHTML = thisCart.totalPrice; // dolny total nie działa
-      thisCart.dom.totalNumber.innerHTML = thisCart.totalNumber; //nie działa
+      for(let price of thisCart.dom.totalPrice) {
+        price.innerHTML = thisCart.totalPrice;
+      }
+      
+      thisCart.dom.totalNumber.innerHTML = thisCart.totalNumber; //del dziala albo nie
       thisCart.dom.deliveryFree.innerHTML = deliveryFree;
 
+      console.log('-------------------');
       console.log('TOTAL PRICE: ', thisCart.totalPrice);
       console.log('SUBTOTAL PRICE: ', thisCart.subtotalPrice);
       console.log('TOTAL NUMBER: ', thisCart.totalNumber);
+      console.log('-------------------');
     }
 
     remove(cartProduct) {
@@ -657,7 +663,11 @@
           thisCartProduct.amount * thisCartProduct.priceSingle;
 
         thisCartProduct.dom.price.innerHTML = thisCartProduct.price;
+
+        console.log('thisCartProduct.amount', thisCartProduct.amount);
       });
+
+      
     }
 
     remove() {
